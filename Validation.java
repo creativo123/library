@@ -1,91 +1,131 @@
-package com.example.keval.roomonrent;
+package com.example.keval.mywatercanadmin;
 
-import android.content.Context;
+import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
-import android.widget.Toast;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
- * Created by dell on 4/19/2016.
+ * Created by keval Choudhary on 4/19/2016.
+ * For more visit www.creativek.me
+ * https://github.com/creativo123
  */
 public class Validation {
 
+    public static boolean validate(LinearLayout l) {
+        return validate(l, true);
+    }
 
-    public static boolean validate(LinearLayout l, Context focus) {
-        for (int i = 0; i < l.getChildCount(); i++) {
-            View child = l.getChildAt(i);
-            if (child instanceof EditText) {
+    public static boolean validate(EditText editText, boolean alert) {
 
-                EditText temp = ((EditText) child);
+        String text = editText.getText().toString();
+        Pattern pattern = null;
+        Matcher matcher = null;
 
-                if (temp.getText().toString().isEmpty()) {
-                    temp.setError("This field can't be left blank");
+        switch (editText.getInputType()) {
+            case InputType.TYPE_NULL:
+                return true;
+
+            case InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS + 1:
+            case InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS + 1:
+                pattern = Pattern.compile("[A-Za-z0-9_]+@[A-Za-z0-9_]+\\.[A-Za-z].{1,6}");
+                matcher = pattern.matcher(text);
+                if (matcher.matches()) {
+                    return true;
+                } else {
+                    if (alert)
+                        editText.setError("Please enter a valid email address");
                     return false;
                 }
 
-
-            }
-
-            if (child instanceof RadioGroup) {
-                RadioGroup temp;
-                temp = (RadioGroup) child;
-                if (temp.getCheckedRadioButtonId() < 0) {
-                // do something
-                    Toast.makeText(focus, "Select one radio button", Toast.LENGTH_SHORT);
+            case InputType.TYPE_TEXT_VARIATION_PERSON_NAME + 1:
+                pattern = Pattern.compile("[A-Za-z0-9]+\\s[A-Za-z0-9]+");
+                matcher = pattern.matcher(text);
+                if (matcher.matches()) {
+                    return true;
+                } else {
+                    if (alert)
+                        editText.setError("Please enter a valid name!");
                     return false;
                 }
 
-            }
+            case InputType.TYPE_CLASS_PHONE:
+                pattern = Pattern.compile("[0-9].{9,13}");
+                matcher = pattern.matcher(text);
+                if (matcher.matches()) {
+                    return true;
+                } else {
+                    if (alert)
+                        editText.setError("Please enter a valid 10 digit mobile number!");
+                    return false;
+                }
 
+            case InputType.TYPE_TEXT_VARIATION_PASSWORD + 1:
+            case InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD + 1:
+            case InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD + 1:
+                if (editText.getTag() == null) {
+                    pattern = Pattern.compile("(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[$_@#]).{6,20}");
+                    matcher = pattern.matcher(text);
+                    if (matcher.matches()) {
+                        return true;
+                    } else {
+                        if (alert)
+                            editText.setError("Please include capital and small alphabets, special symbol and a number in your password");
+                        return false;
+                    }
+                } else {
+
+                    try {
+                        pattern = Pattern.compile(editText.getTag().toString());
+                        matcher = pattern.matcher(text);
+                        if (matcher.matches()) {
+                            return true;
+                        } else {
+                            if (alert)
+                                editText.setError("Please include alphabets, special symbol and a number in your password of minimum length of 6!");
+                            return false;
+                        }
+                    } catch (PatternSyntaxException e) {
+                        e.printStackTrace();
+                    }
+                }
+            default:
+                if (editText.getText().toString().isEmpty()) {
+                    if (alert)
+                        editText.setError("You can't leave this field empty!");
+                    return false;
+                } else {
+                    return true;
+                }
         }
-
-
-        return true;
     }
 
     public static boolean isEmail(EditText email) {
-        if (email.getText().toString().contains("@")) {
+
+        Pattern pattern = Pattern.compile("[A-Za-z0-9]+@[A-za-z0-9]\\.[A-Za-z].{2,6}", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(email.getText().toString());
+        if (matcher.matches()) {
             return true;
         }
+
         email.setError("Include @ in your email");
         return false;
     }
 
-    public static boolean validate(LinearLayout l, Context focus, boolean prompt) {
+    public static boolean validate(LinearLayout l, boolean prompt) {
         for (int i = 0; i < l.getChildCount(); i++) {
             View child = l.getChildAt(i);
             if (child instanceof EditText) {
-
                 EditText temp = ((EditText) child);
-
-                if (temp.getText().toString().isEmpty()) {
-                    if (prompt)
-                        temp.setError("This field can't be left blank");
+                if (!validate(temp, prompt)) {
                     return false;
                 }
-
-
             }
-
-            if (child instanceof RadioGroup) {
-                RadioGroup temp;
-                temp = (RadioGroup) child;
-                if (temp.getCheckedRadioButtonId() < 0) {
-// do something
-                    if (prompt)
-                        Toast.makeText(focus, "Select one radio button", Toast.LENGTH_SHORT);
-                    return false;
-                }
-
-            }
-
         }
-
-
         return true;
     }
-
-
 }
