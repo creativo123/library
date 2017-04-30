@@ -1,7 +1,8 @@
-package com.example.keval.mywatercanadmin;
+package com.example.keval.roomonrent;
 
 import android.text.InputType;
 import android.view.View;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -14,7 +15,10 @@ import java.util.regex.PatternSyntaxException;
  * For more visit www.creativek.me
  * https://github.com/creativo123
  */
+
 public class Validation {
+
+    //  public static int TYPE_PINCODE = 999;
 
     public static boolean validate(LinearLayout l) {
         return validate(l, true);
@@ -26,7 +30,27 @@ public class Validation {
         Pattern pattern = null;
         Matcher matcher = null;
 
-        switch (editText.getInputType()) {
+
+        if (editText.getTag() != null) {
+            try {
+                pattern = Pattern.compile(editText.getTag().toString());
+                matcher = pattern.matcher(text);
+                if (matcher.matches()) {
+                    return true;
+                } else {
+                    if (alert)
+                        editText.setError("Your input does not match the required pattern");
+                    return false;
+                }
+            } catch (PatternSyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+
+        switch (editText.getInputType())
+
+        {
+
             case InputType.TYPE_NULL:
                 return true;
 
@@ -41,6 +65,7 @@ public class Validation {
                         editText.setError("Please enter a valid email address");
                     return false;
                 }
+
 
             case InputType.TYPE_TEXT_VARIATION_PERSON_NAME + 1:
                 pattern = Pattern.compile("[A-Za-z0-9]+\\s[A-Za-z0-9]+");
@@ -102,6 +127,7 @@ public class Validation {
                     return true;
                 }
         }
+
     }
 
     public static boolean isEmail(EditText email) {
@@ -119,7 +145,7 @@ public class Validation {
     public static boolean validate(LinearLayout l, boolean prompt) {
         for (int i = 0; i < l.getChildCount(); i++) {
             View child = l.getChildAt(i);
-            if (child instanceof EditText) {
+            if (child instanceof EditText || child instanceof AutoCompleteTextView) {
                 EditText temp = ((EditText) child);
                 if (!validate(temp, prompt)) {
                     return false;
